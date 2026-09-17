@@ -41,7 +41,12 @@ sleep(10).then(() => console.log("F"));
 
 console.log("G");
 
-// prediction:
-// actual:
+// prediction: A G D E F C B
+// actual: A D G C F E B
 // why I was wrong (one line per miss):
 //
+// D: work()를 호출하면 await를 만나기 전까지는 즉시 실행되므로 G보다 D가 먼저 출력된다.
+// G: D는 async 함수 안에 있어도 await 전의 동기 코드이므로, G보다 앞에 출력된다.
+// C: 0ms setTimeout도 즉시 실행되는 것이 아니라 타이머 큐에서 기다리며, 다른 타이머 중 가장 먼저 실행된다.
+// F: sleep(10)이 완료된 뒤 .then의 콜백이 실행되므로 C 다음, E 전이다.
+// E: sleep(30)을 await한 뒤에 출력되므로 10ms 뒤 출력되는 F보다 나중에 출력된다.
