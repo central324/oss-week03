@@ -44,3 +44,39 @@ if (names.length === 0) {
 //   2. const results = await Promise.allSettled(...)
 //   3. fulfilled / rejected 로 나눔
 //   4. max 내림차순 정렬 → `${i + 1}. ${city.padEnd(8)} ${max.toFixed(1)}` → 실패는 `✗ ${name}: ${message}`
+
+const promises = names.map(async (name) => {
+  const place = await geocode(name);
+  const fc = await forecast(place);
+
+  return {
+    city: place.name,
+    max: fc.days[0].max,
+  };
+});
+
+const results = await Promise.allSettled(promises);
+
+const success = [];
+const failed = [];
+
+results.forEach((result, i) => {
+  if (result.status === "fulfilled") {
+    success.push(result.value);
+  } else {
+    failed.push({
+      name: names[i],
+      message: result.reason.message,
+    });
+  }
+});
+
+success.sort((a, b) => b.max - a.max);
+
+success.forEach((result, i) => {
+  console.log(`${i + 1}. ${result.city.padEnd(8)} ${result.max.toFixed(1)}`);
+});
+
+failed.forEach((result) => {
+  console.log(`✗ ${result.name}: ${result.message}`);
+});
