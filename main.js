@@ -32,6 +32,7 @@ import {
   parseForecast,
 } from "./p3_weather.js";
 import { describe } from "./wmo.js";
+import chalk from "chalk";
 
 
 const args = process.argv.slice(2);
@@ -41,6 +42,17 @@ const name = args.find((a) => !a.startsWith("--")) ?? "Seoul"; // 플래그가 �
 const WEEKDAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 function label(date) {                       // "2026-09-17" → "Thu 09-17"
   return `${WEEKDAY[new Date(date).getUTCDay()]} ${date.slice(5)}`;
+}
+
+function colorMax(temp) {
+  const text = temp.toFixed(1);
+
+  if (temp >= 30)
+    return chalk.red(text);
+  if (temp < 10)
+    return chalk.blue(text);
+
+  return text;
 }
 
 try {
@@ -83,12 +95,12 @@ try {
   //   2. `Now: ${temp.toFixed(1)}${unit}, ${describe(code)}`
   //   3. 날마다: `${label(date)}  min ${min}  max ${max}  ${describe(code)}`    min/max 는 toFixed(1)
   
-  console.log(`${place.name}, ${place.country} (${place.latitude.toFixed(2)}, ${place.longitude.toFixed(2)})`);
+  console.log(`${chalk.bold(place.name)}, ${place.country} (${place.latitude.toFixed(2)}, ${place.longitude.toFixed(2)})`);
   
   console.log(`Now: ${fc.now.temp.toFixed(1)}${fc.now.unit}, ${describe(fc.now.code)}`);
   
   for (const day of fc.days) {
-    console.log(`${label(day.date)}  min ${day.min.toFixed(1)}  max ${day.max.toFixed(1)}  ${describe(day.code)}`);
+    console.log(`${label(day.date)}  min ${day.min.toFixed(1)}  max ${colorMax(day.max)}  ${describe(day.code)}`);
   }
 
   // TODO (P6): --save, --offline (README 참고)

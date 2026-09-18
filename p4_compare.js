@@ -32,6 +32,8 @@
 // 커밋 메시지: p4: compare cities
 
 import { geocode, forecast } from "./p3_weather.js";
+import chalk from "chalk";
+
 
 const names = process.argv.slice(2);
 if (names.length === 0) {
@@ -73,10 +75,23 @@ results.forEach((result, i) => {
 
 success.sort((a, b) => b.max - a.max);
 
+function colorMax(temp) {
+  const text = temp.toFixed(1);
+
+  if (temp >= 30)
+    return chalk.red(text);
+  
+  if (temp < 10)
+    return chalk.blue(text);
+
+  return text;
+}
+
+
 success.forEach((result, i) => {
-  console.log(`${i + 1}. ${result.city.padEnd(8)} ${result.max.toFixed(1)}`);
+  console.log(`${i + 1}. ${chalk.bold(result.city.padEnd(8))} ${colorMax(result.max)}`);
 });
 
 failed.forEach((result) => {
-  console.log(`✗ ${result.name}: ${result.message}`);
+  console.log(`✗ ${chalk.bold(result.name)}: ${result.message}`);
 });
